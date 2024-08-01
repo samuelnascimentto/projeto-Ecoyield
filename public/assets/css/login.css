@@ -1,0 +1,32 @@
+#formArea {
+    border-radius: 0 10px 10px 0;
+}
+
+#formArea p {
+    max-width: 450px;
+    margin: 0 0 20px 70px;
+    color: #ffffffe8;
+    font-size: 14px;
+    line-height: 1.7;
+}
+
+#formArea p:nth-of-type(2) {
+    max-width: 450px;
+    color: #ffffffe8;
+}
+
+#sideImage {
+    border-radius: 10px 0 0 10px;
+}
+
+#sideImage div {
+    border-radius: 10px 0 0 10px;
+}
+
+form button {
+    padding: 12px 60px 12px 60px;
+}
+
+form span {
+    margin-bottom: 10px;
+}

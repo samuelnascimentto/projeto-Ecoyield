@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Balsamiq+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
+    <title>YIELD IA</title>
+    <link rel="stylesheet" href="bobia.css">
+</head>
+<body>
+
+    <div id="chat-header">
+        <h1 style="letter-spacing: 3.2px;">YIELD <span style="color: #ffbb00;">IA</span></h1>
+    </div>
+
+    <div id="chat-container" class="chat-container">
+        <div class="balao-resposta">
+            <img src="robo chat.gif" alt="Ícone do Robô" class="icone">
+            <p>Bem-vindo, sou o YIELD IA. Estou aqui para responder às suas perguntas.</p>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <textarea id="pergunta" type="text" placeholder="Digite a pergunta..."></textarea>
+        <button onclick="gerarResposta()">Enviar</button>
+    </div>
+
+    <script>
+        async function gerarResposta() {
+            const pergunta = document.getElementById('pergunta').value;
+            const chatContainer = document.getElementById('chat-container');
+
+            // Cria um novo balão de pergunta
+            const balaoPergunta = document.createElement('div');
+            balaoPergunta.className = 'balao-pergunta';
+            balaoPergunta.innerHTML = '<p>' + pergunta + '</p>';
+            chatContainer.prepend(balaoPergunta);
+
+            // Limpa o campo de pergunta
+            document.getElementById('pergunta').value = '';
+
+            // Faz a solicitação à IA
+            const response = await fetch('/perguntar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ pergunta })
+            });
+
+            // Recebe a resposta da IA
+            const data = await response.json();
+
+            // Cria um novo balão de resposta
+            const balaoResposta = document.createElement('div');
+            balaoResposta.className = 'balao-resposta';
+            balaoResposta.innerHTML = '<img src="robo-chat.gif" alt="Ícone do Robô" class="icone"><p>' + data.resultado + '</p>';
+            chatContainer.prepend(balaoResposta);
+
+            // Rola para o início do chat
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+    </script>
+    
+</body>
+</html>

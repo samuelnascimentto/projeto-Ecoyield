@@ -1,0 +1,122 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+* {
+    margin: 0;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-color: #6684afdc;
+    overflow-y: hidden;
+}
+
+#container {
+    display: flex;
+    flex-direction: row;
+    margin: 20px auto;
+    width: fit-content;
+    background-color: transparent;
+    border-radius: 10px;
+    box-shadow: #38495781 0 5px 25px 15px;
+}
+
+.fa-circle-left {
+    position: absolute;
+    font-size: 36px;
+    left: 55px;
+    top: 12px;
+}
+
+#formArea {
+    background-color: #6685AF;
+    width: 45vw;
+    height: 94vh;
+    border-radius: 10px 0px 0px 10px;
+}
+
+h1 {
+    color: #ffffff;
+    margin-bottom: 15px;
+    font-size: 28px;
+}
+
+#logo {
+    width: 100px;
+    margin: 30px 0 10px 0 ;
+}
+
+h1, #logo {
+    margin-left: 70px;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+form input {
+    width: 450px;
+    margin-bottom: 20px;
+    outline: none;
+    padding: 10px 0 10px 5px;
+    background-color: transparent;
+    color: #ffffff;
+    border: #ffffff 1px solid;
+}
+
+.inputRow input {
+    width: 202px;
+}
+
+.inputRow :nth-child(1) {
+    margin-right: 35px;
+}
+
+form input::placeholder {
+    color: rgba(255, 255, 255, 0.61);
+}
+
+form button {
+    width: fit-content;
+    padding: 12px 40px 12px 40px;
+    margin-bottom: 5px;
+    background-color: #3C67A0;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: 600;
+    border: none;
+    cursor: pointer;
+}
+
+form button:active {
+    opacity: 0.5;
+    transform: translateY(1.5px) translateX(1.5px);
+    transition: 0.1s ease-in-out;
+}
+
+form span, a {
+    font-size: 12px;
+    color: #ffffff;
+}
+
+form a {
+    text-decoration: none;
+    color: #ffbb00;
+    font-weight: 600;
+}
+
+#sideImage {
+    width: 45vw;
+    height: 94vh;
+    background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.5)), url(../img/formSide.png);
+    background-size: cover;
+    border-radius: 0px 10px 10px 0px;
+}
+
+#sideImage div {
+    width: 45vw;
+    height: 94vh;
+    border-radius: 0px 10px 10px 0px;
+}

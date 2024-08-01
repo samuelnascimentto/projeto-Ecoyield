@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+    <link rel="stylesheet" href="../../assets/css/calculadora.css">
+
+</head>
+<body>
+    <a href="../../index.html" id="voltarSite"><button>Voltar ao Site</button></a>
+    <div class="card_informativo"  id="card_informativo" style="display: block;"><img src="../../assets/img/grafico de umidade alta (1).png" id="imgLouca" alt="Card_Estrsse térmico"><br><br> <span class="span_card">Caso extremo: <br> Acontece quando o estresse térmico é muito maior que em os outros dias, como no dia 24/09/2023, com a média de temperatura sendo: 39°C e 30% de umidade</span></div>
+    <div class="conteiner" id="conteiner_id">
+        <h1 class="titulo">Simulador <span style="color: #E6BA35;">Eco</span>Yield</h1>
+
+        <!-- Média de faturamento do setor: 
+        <input type="number" id="inpuFaturamento" placeholder="Ex: R$ 200000,00">  <br> -->
+
+        Quantidade de funcionarios: 
+        <input type="number" id="inpuQtdFuncionarios" placeholder="Ex: 100">  <br>
+
+        Média salarial por funcionario: 
+        <input type="number" id="inpuSalario" placeholder="Ex: R$ 2000,00">  <br>
+
+        Estresse térmico: <br>
+        <select name="" id="estresse">
+            <option value="">Selecione uma das opções</option>
+            <option value="alta_temperatura">Estresse térmico de alta temperatura</option>
+            <option value="baixa_temperatura">Estresse térmico de baixa temperatura</option>
+            <option value="caso_extremo">Caso extremo</option>
+        </select> <br>
+        
+        <!-- Digite a temperatura do seu ambiente: 
+        <input type="number" id="inpuTemp" placeholder="Ex: 26ºC">  <br>
+
+        Digite a umidade do seu ambiente: 
+        <input type="number" id="inpuUmid" placeholder="Ex: 25%">  <br> -->
+
+        Digite as horas de trabalho:
+        <input type="number" id="inpuHora" placeholder="Ex: 2 horas"> <br>  
+   
+        <button onclick="butProdu()">Calcular taxa</button>
+    </div> 
+
+    <div class="resultado" id="textoDiv" style="display: none;">
+    
+    </div>
+    
+</body>
+</html>
+
+
+<script>
+    function butProdu(){
+        // const Faturamento = Number(inpuFaturamento.value)
+        const qtdFuncionario = Number(inpuQtdFuncionarios.value)
+        const salario = Number(inpuSalario.value)
+        let hora = Number(inpuHora.value)
+        let temperatura = 37
+        let umidade = 30
+        let temperaturaadiconal = 0
+        
+
+        if((estresse.value) == 'alta_temperatura'){
+            temperatura = 28
+            umidade = 90
+        }
+        else if ((estresse.value) == 'baixa_temperatura'){
+            temperatura = 13
+            umidade = 30
+        }
+
+        // if(!Faturamento){
+        //     alert("Preencha o campo do Faturamento!")
+        // }
+        if (!qtdFuncionario){
+            alert ("Prencha o campo das Quantidade de funcionarios!")
+        }
+        else if (!salario){
+            alert ("Prencha o campo do Salario!")
+        }
+        else if(!temperatura){
+            alert("Preencha o campo da Temperatura!")
+        }
+        else if (!hora){
+            alert ("Prencha o campo das Horas de Trabalho!")
+        }
+        else{
+        conteiner_id.style = "none"
+        textoDiv.style = "block"
+        card_informativo.style.display = "none"
+        imgLouca.style.display = "none"
+        for(let contUmid=25;contUmid<=umidade;contUmid+=5){
+            if(contUmid == 25 && temperatura>=31){
+            
+            if(temperatura<=41){
+                temperaturaadiconal=5
+                }
+            if(temperatura<=39){
+                temperaturaadiconal = 4
+                }
+            if(temperatura<=37){
+                temperaturaadiconal=3
+                }
+            if(temperatura<=35){
+                temperaturaadiconal=2
+                }
+            if(temperatura<=33){
+                temperaturaadiconal=1
+                }
+            else{
+                temperaturaadiconal=6
+                }
+
+            }
+            else if(contUmid > 25 && temperatura>=28 && temperatura<=32){
+                temperaturaadiconal += 1         
+            }
+            else if(contUmid > 25 && temperatura>=33){
+                temperaturaadiconal += 2
+            }
+        }
+        
+    
+        temperatura += temperaturaadiconal
+
+    
+        let temperaturaFinal = temperatura - 25;
+        if(temperatura>=21 && temperatura<=25){
+            temperaturaFinal = 0
+        }
+        if(temperatura <= 20){
+            temperaturaFinal = 20 - temperatura 
+        } 
+        else if(temperatura < 0){
+            temperaturaFinal = Math.abs(temperatura + 18)
+        }
+        let aumeTempe =  temperaturaFinal * 0.57;
+
+        
+            for(i=1; i <= hora; i *= 1.5){
+            }
+            let desempenho = (i * aumeTempe)
+            
+            textoDiv.innerHTML +=`
+            A sua produtividade por funcionario caíra: ${desempenho.toFixed(2)}%
+            `
+        
+        let fracao13 = salario*0.083
+        let fracaoFerias = salario*0.1111
+        let FGTS = salario*0.08
+        let FGTS13 = salario*0.014
+        let INSS = salario*0.20
+        let fracaoInss13Ferias = salario*0.04
+        let Custo_Funcionario_final = salario+fracao13+fracaoFerias+FGTS+FGTS13+INSS+fracaoInss13Ferias
+        let Valor_perda_produtividade=(Custo_Funcionario_final*(desempenho/100))*qtdFuncionario
+        let lucro_perda_total = Valor_perda_produtividade
+        let perda_c_economia = Valor_perda_produtividade*0.2
+
+        let resultado = textoDiv.value
+        textoDiv.innerHTML =`
+        <h1 class="titulo">Simulador <span style="color: #E6BA35;">Eco</span>Yield</h1>
+
+        Devido à relação da perda de produtividade com o estresse térmico causado pela temperatura neste ambiente, ocorrerá que:<br><br>A sua produtividade por funcionario caíra:<b>${desempenho.toFixed(2)}% </span><br> <span class="Com_ecoyield">(Com a EcoYield: ${(desempenho*0.2).toFixed(2)}%)</span></b><br>Tendo a perda por funcionario de <b>R$${(Custo_Funcionario_final*(desempenho/100)).toFixed(2)}<span class="Com_ecoyield"><br>(Com a EcoYield: R$${((Custo_Funcionario_final*(desempenho/100))*0.2).toFixed(2)})</span></b><br></b>Economizara com a EcoYield<b><span class="Com_ecoyield">R$${(lucro_perda_total-perda_c_economia).toFixed(2)}<br>(Redução de 80%)</span></b><br></b>
+            <p class="voltar">
+                <a href="calc.html"><button onclick="voltarPerguntas()">Voltar para as perguntas</button></p></a>
+            
+            `
+            // Com isso terá a diminuição no Faturamento total do setor de: <b>${porcentagem_lucro_perda.toFixed(2)}%<span class="Com_ecoyield"><br>(Com a EcoYield: ${(porcentagem_lucro_perda*0.2).toFixed(2)}%)</span>
+        if(desempenho==0){
+            textoDiv.innerHTML = `
+        <h1 class="titulo">Simulador <span style="color: #E6BA35;">Eco</span>Yield</h1>
+
+        Devido à relação da perda de produtividade com o estresse térmico causado pela temperatura neste ambiente, ocorrerá que:<br><br>A sua produtividade por funcionario caíra: <b>${desempenho.toFixed(2)}%</b><br>Tendo a perda por funcionario de <b>R$${(Custo_Funcionario_final*(desempenho/100)).toFixed(2)}</b><br>
+        <p class="ideal">Em um ambiente com condições climáticas favoráveis, a EcoYield se destaca como uma garantia adicional para a preservação da qualidade e eficiência na produção dos funcionários de nosso cliente.<br> Nossa solução promove um ambiente de trabalho estável e propício ao desempenho máximo da equipe, resultando em resultados consistentes e satisfatórios.</p>
+            <p class="voltar">
+                <a href="calc.html"><button onclick="voltarPerguntas()">Voltar para as perguntas</button></p></a>
+            
+            `
+        }
+            conteiner_id.style.display = 'none';
+            resultado.style.display = 'block';
+        }
+    }
+</script>
+

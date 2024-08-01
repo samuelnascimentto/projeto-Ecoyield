@@ -1,0 +1,164 @@
+body {
+    background-size: cover;
+    background-color: #4e71a0;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#voltarSite {
+    position: absolute;
+    left: 20px;
+    top: 15px;
+}
+
+#voltarSite button {
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    background-color: #ffbb00;
+    font-weight: bold;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:active {
+    opacity: 0.5;
+    transform: translateY(1.5px) translateX(1.5px);
+    transition: 0.1s ease-in-out;
+}
+
+
+.conteiner {
+    font-size: 22px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #27528B;
+    padding: 0px 60px;
+    color: #fff;
+    width:33%;
+    margin: 40px auto 40px auto;
+    gap: 10px;
+    margin-left: 15%;
+    border-radius: 10px;
+}
+
+.conteiner input {
+    border-color: #27528B;
+    color: rgb(24, 23, 23);
+    font-weight: 350px;
+    background-color: #a5b9d3;
+    width: 400px;
+    height: 35px;
+    border-radius: 10px;
+    font-size: 17px;
+}
+
+.conteiner select{
+    border-color: #27528B;
+    color: rgb(24, 23, 23);
+    font-weight: 350px;
+    background-color: #a5b9d3;
+    width: 400px;
+    height: 35px;
+    border-radius: 10px;
+    font-size: 17px;
+}
+.conteiner button {
+    background-color: #E6BA35;
+    border-color: #E6BA35;
+    width: 220px;
+    height: 40px;
+    align-items: center;
+    border-radius: 8px;
+    margin: 20px 90px;
+    font-size: 18px;
+    font-weight: bold;
+} 
+
+.conteiner input::placeholder {
+    color: rgb(3, 3, 3);
+    position: absolute;
+    left: 15px;
+    font-size: 17px;
+} 
+
+.resultado {
+    font-size: 18px;
+    display: flex;
+    flex-direction: column;
+    background-color: #27528B;
+    padding: 20px 60px;
+    color: #fff;
+    width:34%;
+    margin: 0 auto;
+    gap: 10px;
+    text-align: center;
+    
+}
+b {
+    font-size: 28px;
+    color: #e67635;
+}
+
+.voltar {
+    margin-top: 20px; 
+}
+
+.voltar button{
+    background-color: #E6BA35;
+    border-color: #E6BA35;
+    width: 220px;
+    height: 50px;
+    align-items: center;
+    border-radius: 8px;
+    margin: 0 90px;
+    font-size: 18px;
+    font-weight: bold;
+}
+
+.ideal{
+    background-color: #E6BA35;
+    border-color: #4e71a0;
+    align-items: center;
+    border-radius: 8px;
+    margin: 0 90px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100%;
+    margin-left: 0.5%; 
+}
+
+.Com_ecoyield{
+    color: greenyellow;
+    font-size: 24px;
+}
+.card_informativo{
+    display: flex;
+    font-size: 22px;
+    /* flex-direction:column; */
+    align-items:end;
+    background-color: #27528B;
+    /* padding: 20px 60px; */
+    color: #fff;
+    /* height: 40%; */
+    width: 41%;
+    height: 655px;
+    margin-top: 5%;
+    margin-left: 57%;
+    margin-bottom: -54%;
+    justify-content: space-between;
+    border-radius: 10px;   
+}
+.span_card{
+    display: flex;
+    font-size: 22px;
+    align-items:center;
+    color: #fff;
+    border-radius: 5%;
+    background-color:#E6BA35;
+    margin-right: 20%;
+    margin-left: 6%;
+    text-align: center;
+}

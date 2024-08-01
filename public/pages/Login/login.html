@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tela de Login | EcoYield</title>
+    <link rel="stylesheet" href="../../assets/css/cadastroLogin.css">
+    <link rel="stylesheet" href="../../assets/css/login.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css">
+    <!-- <script src="script.js"></script> -->
+</head>
+
+<body>
+    <div id="container">
+        <a href="../../index.html"><i class="fa-regular fa-circle-left" style="color: #ffffff;"></i></a>
+
+        <div id="sideImage">
+            <div></div>
+        </div>
+
+        <div id="formArea">
+            <img src="../../assets/img/alternativeLogo.png" alt="Logo Alternativa EcoYield" id="logo">
+            <h1>Login</h1>
+            <p>Acesse nossa dashboard e aproveite o monitoramento de ambiente que possibilitamos através de gráficos com
+                dados captados em tempo real.</p>
+            <p>Somos a melhor escolha para a sua empresa.</p>
+            
+            <form>
+                <input type="text" id="email_input" placeholder="Email">
+                <input type="password" id="senha_input" placeholder="Senha">
+                <button id="button" onclick="entrar(event)">Login</button>
+                <span>Ainda não possui cadastro? <a href="../Cadastro/cadastro.html">Cadastre-se</a></span>
+                <a href="#">Esqueci minha senha</a>
+            </form>
+        </div>
+
+    </div>
+</body>
+
+</html>
+
+<script>
+    function entrar(event) {
+        event.preventDefault(); // Previne o comportamento padrão de submissão do formulário
+
+        var emailVar = document.getElementById('email_input').value;
+        var senhaVar = document.getElementById('senha_input').value;
+
+        if (emailVar == "" || senhaVar == "") {
+            alert("Mensagem de erro para todos os campos em branco");
+            return false;
+        }
+
+        console.log("FORM LOGIN: ", emailVar);
+        console.log("FORM SENHA: ", senhaVar);
+
+        fetch("/usuarios/autenticar", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                emailServer: emailVar,
+                senhaServer: senhaVar
+            })
+        }).then(function (resposta) {
+            console.log("ESTOU NO THEN DO entrar()!");
+
+            if (resposta.ok) {
+                console.log("Resposta OK: ", resposta);
+
+                resposta.json().then(json => {
+                    console.log("JSON recebido: ", json);
+
+                    // Verifique se as propriedades existem no JSON
+                        sessionStorage.ID_USUARIO = json.id;
+                        sessionStorage.NOME_USUARIO = json.nome;
+                        sessionStorage.EMAIL_USUARIO = json.email;
+                        sessionStorage.ID_EMPRESA = json.empresaId;
+                        sessionStorage.DEPARTAMENTOS = JSON.stringify(json.departamentos);
+                        // sessionStorage.CONJUNTOS = JSON.stringify(json.conjuntos);
+                        console.log("Dados armazenados no sessionStorage");
+
+                        console.log(json)
+                        setTimeout(function () {
+                            window.location = "../Dashboard/dashboard.html";
+                        }, 1000); // apenas para exibir o loading
+
+                }).catch(erroJson => {
+                    console.error("Erro ao converter resposta em JSON: ", erroJson);
+                });
+
+            } else {
+                console.log("Houve um erro ao tentar realizar o login!");
+
+                resposta.text().then(texto => {
+                    console.error(texto);
+                });
+            }
+
+        }).catch(function (erro) {
+            console.error("Erro na requisição fetch: ", erro);
+        });
+
+        return false;
+    }
+</script>

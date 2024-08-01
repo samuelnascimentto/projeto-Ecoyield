@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Home</title>
+    <link rel="stylesheet" href="../../assets/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <nav class="menuLateral">
+        <div class="btn-expandir">
+            <i class="bi bi-list" id="btn-exp"></i>
+        </div>
+
+        <ul>
+            <li class="item-menu ativo">
+                <a href="#">
+                    <span class="icon"><i class="bi bi-house-door-fill"></i></span>
+                    <span class="txt-link">Home</span>
+                </a>
+            </li>
+            <li class="item-menu" id="link_usuario">
+                <a onclick="dialog.showModal()">
+                    <span class="icon"><i class="bi bi-person-square"></i></i></span>
+                    <span class="txt-link">Usuario</span>
+                </a>
+            </li>
+        </ul>
+    </nav>
+
+
+    
+    <div class="containerGeral">
+
+        <div class="containerKPI">
+            
+            <div class="KPI">
+                <h3>Temperatura irregular nas ultimas 2 horas:</h3><br>
+                <span id="tempIrregular">Aguarde...</span>
+                <span style="color: rgb(65, 65, 65); font-size: 16px;" id="deptoOcorridoIrregular"></span>
+                <span style="color: rgb(65, 65, 65); font-size: 14px;" id="momentoTempIrregular"></span>
+            </div>
+            <div class="KPI">
+                <h3>Umidade irregular nas ultimas 2 horas:</h3><br>
+                <span id="umidIrregular">Aguarde...</span>
+                <span style="color: rgb(65, 65, 65); font-size: 16px;" id="deptoOcorridoUmidIrregular"></span>
+                <span style="color: rgb(65, 65, 65); font-size: 14px;" id="momentoUmidIrregular"></span>
+            </div>
+            <div class="KPI">
+                <h3>Alertas nas últimas 2 horas:</h3><br>
+                <span id="alerta2h">Aguarde...</span><br>
+            </div>
+        </div>
+
+        <div class="containerKPI">
+            <div class="KPI">
+                <h3>Conjunto Sensores em alerta:</h3><br>
+                <span id="kpiConjSensor"><span id="qtdConjSensorAlerta">Aguarde...</span><span
+                        id="qtdConjSensorTotal"></span></span>
+                <span style="color: rgba(65, 65, 65, 0.801); font-size: 16px;"><span
+                        id="porcentConjAlerta"></span></span>
+            </div>
+            <div class="KPI">
+                <h3>Último alerta gerado:</h3><br>
+                <span id="ultimoAlerta">Aguarde...</span>
+                <span style="color: rgb(65, 65, 65); font-size: 14px;" id="momentoUltimoAlerta"></span>
+            </div>
+        </div>
+        
+
+        <dialog id="dialog" class="dialogUser" close>
+            <div class="contModal">
+                <div class="nomeModal">
+                    <h1 id="nomeUsuario">Nome-User</h1>
+                    <span class="icon"><i class="bi bi-person-circle"></i></span>
+                </div>
+
+                <div class="modalBut">
+                    <button id="voltarLogin">Desconectar</button>
+                    <button id="cancel" onclick="dialog.close()">Fechar</button>
+                </div>
+            </div>
+        </dialog>
+
+        <div class="containerLista">
+            <div id="btnDepartamento" class="listaAmbientes">
+                <h2 id="tituloDepto">Departamentos</h2>
+                <!-- <button onclick="but1()">AMB1</button> -->
+            </div>
+        </div>
+
+        <dialog id="modalDepartamento" class="modalCS">
+            <div id="graficos">
+                <!-- graficos gerados no JS -->
+            </div>
+        </dialog>
+
+        <div id="containerLegendas">
+            <img src="../../assets/img/termometroLegenda.png" alt="" class="legenda">
+        </div>
+
+</body>
+
+</html>
+
+<!-- <script src="../../assets/js/dashboard.js"></script> -->
+
+<script>
+    nomeUsuario.innerHTML = sessionStorage.NOME_USUARIO;
+
+    let proximaAtualizacao;
+
+    let departamentos = JSON.parse(sessionStorage.DEPARTAMENTOS);
+
+    const idEmpresa = JSON.parse(sessionStorage.ID_EMPRESA);
+
+    const btnSair = document.getElementById('voltarLogin');
+
+    btnSair.addEventListener('click', function () {
+        window.location = "../Login/login.html";
+    }, "2000")
+
+    window.onload = exibirDepartamentosDoUsuario();
+
+    document.getElementById('modalDepartamento').addEventListener('close', aoFecharModal);
+
+
+    function exibirDepartamentosDoUsuario() {
+
+        let idsDeptoSet = new Set();
+
+        departamentos.forEach(item => {
+            // Verificamos se o departamento já está no Set
+
+            console.log(item)
+            if (!idsDeptoSet.has(item.nome)) {
+                // Se não estiver, adicionamos ao Set
+                idsDeptoSet.add(item.nome);
+
+                // Criamos o botão do departamento
+                document.getElementById("btnDepartamento").innerHTML += `
+                <input type="button" onclick="exibirDepartamento('${item.nome}'), modalDepartamento.showModal()" id="btnDepto${item.nome}" value="${item.nome}">
+            `;
+
+                // Criamos a seção de gráficos do departamento
+                document.getElementById("graficos").innerHTML += `
+                <div id="graficoDepto${item.nome}" class="display-none">
+                    <h3 class="tituloGraficos">
+                        <span id="tituloDepto${item.nome}">${item.nome}</span>
+                    </h3>
+                </div>
+            `;
+            }
+
+            // Adicionamos os gráficos dos conjuntos de sensores ao departamento
+            document.getElementById(`graficoDepto${item.nome}`).innerHTML += `
+            <div class="graph">
+                    <div id="buttonContainer${item.idConjunto}" >
+                        <button onclick="mudarEstiloGrafico(${item.idConjunto})" id="grafConj${item.idConjunto}" class="chartGraph">Conjunto Sensor ${item.numeroConjunto}</button>
+                    </div>
+                <div id="containerGraph${item.idConjunto}" style="display: none;">
+
+                    <h3 id="titleConj">Conjunto Sensor ${item.numeroConjunto}</h3>
+                    <canvas id="myChartCanvas${item.idConjunto}"></canvas>
+                    <div id="contKPIcs">
+                        <div class="KPIcs">
+                            <h3>Último alerta gerado:</h3>
+                            <span id="ultimoAlertaGraficoTemp${item.idConjunto}" style="color: #D30C0C; font-weight: 600;">...</span>
+                            <span id="ultimoAlertaGraficoMomento${item.idConjunto}" style="color: rgb(65, 65, 65); font-size: 14px;"></span>
+                            </div>
+                            <div class="KPIcs">
+                                <h3>Temperatura irregular nas ultimas 2 horas:</h3>
+                                <span id="maiorTempGrafico${item.idConjunto}" style="font-weight: 600;">...</span>
+                                <span id="maiorTempMomentoGrafico${item.idConjunto}" style="color: rgb(65, 65, 65); font-size: 14px;"></span>
+                                </div>
+                                <div class="KPIcs">
+                                    <h3>Umidade irregular nas ultimas 2 horas:</h3>
+                                    <span id="maiorUmidGrafico${item.idConjunto}" style="font-weight: 600;">...</span>
+                                    <span id="maiorUmidMomentoGrafico${item.idConjunto}" style="color: rgb(65, 65, 65); font-size: 14px;"></span>
+                                </div>
+                        </div>
+                        
+                        </div>
+                        <a onclick="modalDepartamento.close()" id="fecharModalGraf">X</a>
+                    </div>
+        `;
+            obterDadosGrafico(item.idConjunto);
+
+        });
+
+
+        // Se houver departamentos, exiba o primeiro por padrão
+        if (departamentos.length > 0) {
+            exibirDepartamento(departamentos[0].nome);
+        }
+    }
+
+    function aoFecharModal() {
+        departamentos.forEach(item => {
+            let containerGraph = document.getElementById(`containerGraph${item.idConjunto}`);
+            containerGraph.style.display = "none";
+
+            let buttonsConjuntos = document.getElementById(`buttonContainer${item.idConjunto}`);
+            buttonsConjuntos.style.display = "block";
+        })
+    }
+
+
+    function mudarEstiloGrafico(idConjunto) {
+        let containerGraph = document.getElementById(`containerGraph${idConjunto}`);
+
+
+        departamentos.forEach(item => {
+            let buttonsConjuntos = document.getElementById(`buttonContainer${item.idConjunto}`);
+            buttonsConjuntos.style.display = "none";
+
+        })
+
+        containerGraph.style.display = "block";
+
+        // graficos.style.display = "none";
+    }
+
+    function exibirDepartamento(nomeDepto) {
+        let todosOsDepartamentos = JSON.parse(sessionStorage.DEPARTAMENTOS);
+
+        // Oculta todos os gráficos
+        todosOsDepartamentos.forEach(departamento => {
+            let elementoAtual = document.getElementById(`graficoDepto${departamento.nome}`);
+            if (elementoAtual) {
+                elementoAtual.classList.add("display-none");
+                elementoAtual.classList.remove("display-block");
+            }
+        });
+
+        // Exibe o gráfico do departamento selecionado
+        let graficoExibir = document.getElementById(`graficoDepto${nomeDepto}`);
+        if (graficoExibir) {
+            graficoExibir.classList.remove("display-none");
+            graficoExibir.classList.add("display-block");
+        }
+
+        // Alterando estilo do botão
+    }
+
+    function obterDadosGrafico(idConjunto) {
+
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/medidas/ultimas/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+                    resposta.reverse();
+
+                    plotarGrafico(resposta, idConjunto);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    function obterDadosKpiGeral(idEmpresa) {
+
+        // alterarTitulo(idDepto)
+
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/kpisGerais/conjTotal/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiQtdConjTotal(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGerais/conjAlerta/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiQtdConjAlerta(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGerais/qtdAlerta2h/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiQtdAlerta2h(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGerais/ultimoAlertaDepto/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiUltimoAlertaDepto(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGerais/tempIrregular2h/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiTempIrregular2h(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGerais/umidIrregular2h/${idEmpresa}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiUmidIrregular2h(resposta);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    let deptoAlert = null;
+    let deptoTotal = null;
+
+    function calcularPorcentagemDeptoSePronto() {
+        if (deptoAlert !== null && deptoTotal !== null) {
+            porcentagemDeptoAlerta(deptoAlert, deptoTotal);
+        }
+    }
+
+    function porcentagemDeptoAlerta(deptoAlert, deptoTotal) {
+        const porcent = (deptoAlert / deptoTotal) * 100;
+        document.getElementById('porcentDeptoAlerta').innerHTML = `${porcent.toFixed(1)}%`;
+    }
+
+    let conjAlert = null;
+    let conjTotal = null;
+
+    function inserirKpiQtdConjTotal(resposta) {
+        const qtdTotalConj = resposta[0].totalConj;
+        document.getElementById('qtdConjSensorTotal').innerHTML = qtdTotalConj;
+        conjTotal = qtdTotalConj;
+        calcularPorcentagemConjSePronto();
+
+    }
+
+    function inserirKpiQtdConjAlerta(resposta) {
+        const qtdTotalConjAlerta = resposta[0].totalConjAlerta;
+        document.getElementById('qtdConjSensorAlerta').innerHTML = `${qtdTotalConjAlerta}/`;
+        conjAlert = qtdTotalConjAlerta;
+        calcularPorcentagemConjSePronto();
+    }
+
+    function calcularPorcentagemConjSePronto() {
+        if (conjTotal !== null && conjAlert !== null) {
+            porcentagemConjAlerta(conjTotal, conjAlert);
+        }
+    }
+
+    function porcentagemConjAlerta(conjTotal, conjAlert) {
+        const porcent = (conjAlert / conjTotal) * 100;
+        document.getElementById('porcentConjAlerta').innerHTML = `${porcent.toFixed(1)}%`;
+
+        if (porcent > 50) {
+            document.getElementById('porcentConjAlerta').style.color = '#D30C0C';
+            document.getElementById('kpiConjSensor').style.color = '#D30C0C';
+            document.getElementById('kpiConjSensor').style.fontWeight = 600;
+        }
+    }
+
+    function inserirKpiQtdAlerta2h(resposta) {
+        const qtdAlerta2h = resposta[0].qtdAlertas2h;
+        document.getElementById('alerta2h').innerHTML = qtdAlerta2h;
+
+        if (qtdAlerta2h > 0) {
+            document.getElementById('alerta2h').style.color = '#D30C0C';
+            document.getElementById('alerta2h').style.fontWeight = 600;
+        }
+    }
+
+    function inserirKpiUltimoAlertaDepto(resposta) {
+        const ultimoAlertaDepto = resposta[0].depto;
+        const ultimoAlertaMomento = resposta[0].momento;
+        document.getElementById('ultimoAlerta').innerHTML = `Depto. ${ultimoAlertaDepto}`;
+        document.getElementById('momentoUltimoAlerta').innerHTML = ultimoAlertaMomento;
+
+        document.getElementById('ultimoAlerta').style.color = '#D30C0C';
+        document.getElementById('ultimoAlerta').style.fontWeight = 600;
+    }
+
+    function inserirKpiTempIrregular2h(resposta) {
+        const tempIrregular = resposta[0].temp;
+        const momento = resposta[0].momento;
+        const depto = resposta[0].depto;
+
+        if (tempIrregular != null) {
+            document.getElementById('tempIrregular').innerHTML = `${tempIrregular}°C`;
+            document.getElementById('deptoOcorridoIrregular').innerHTML = `Depto. ${depto}`;
+            document.getElementById('momentoTempIrregular').innerHTML = momento;
+            if (tempIrregular > 25) {
+                document.getElementById('tempIrregular').style.color = '#D30C0C';
+                document.getElementById('tempIrregular').style.fontWeight = 600;
+            }
+            else if (tempIrregular < 18) {
+                document.getElementById('tempIrregular').style.color = '#001AFF';
+                document.getElementById('tempIrregular').style.fontWeight = 600;
+            }
+        } else {
+            document.getElementById('tempIrregular').innerHTML = `Nenhum Dado Encontrado`;
+        }
+
+    }
+
+    function inserirKpiUmidIrregular2h(resposta) {
+        const umidIrregular = resposta[0].umid;
+        const momento = resposta[0].momento;
+        const depto = resposta[0].depto;
+        document.getElementById('umidIrregular').innerHTML = `${umidIrregular}°C`;
+        document.getElementById('deptoOcorridoUmidIrregular').innerHTML = `Depto. ${depto}`;
+        document.getElementById('momentoUmidIrregular').innerHTML = momento;
+
+        if (umidIrregular != null) {
+            document.getElementById('umidIrregular').innerHTML = `${umidIrregular}%`;
+            document.getElementById('deptoOcorridoUmidIrregular').innerHTML = `Depto. ${depto}`;
+            document.getElementById('momentoUmidIrregular').innerHTML = momento;
+            if (umidIrregular < 45 || umidIrregular > 55) {
+                document.getElementById('umidIrregular').style.color = '#D30C0C';
+                document.getElementById('umidIrregular').style.fontWeight = 600;
+            }
+        } else {
+            document.getElementById('umidIrregular').innerHTML = `Nenhum Dado Encontrado`;
+        }
+
+    }
+
+    function obterDadosKpisGrafico(idConjunto) {
+
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/kpisGraficos/ultimoAlerta/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiUltimoAlertaGrafico(resposta, idConjunto);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGraficos/maiorTemperatura2h/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiMaiorTemp2h(resposta, idConjunto);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+
+        fetch(`/kpisGraficos/maiorUmidade2h/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+
+                    inserirKpiMaiorUmidade2h(resposta, idConjunto);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    departamentos.forEach(item => {
+        obterDadosKpisGrafico(item.idConjunto);
+    });
+
+    function inserirKpiUltimoAlertaGrafico(resposta, idConjunto) {
+        const ultimoAlertaTemp = resposta[0].temp;
+        const ultimoAlertaMomento = resposta[0].momento;
+        const spanTemp = document.getElementById(`ultimoAlertaGraficoTemp${idConjunto}`);
+        const spanMomento = document.getElementById(`ultimoAlertaGraficoMomento${idConjunto}`);
+
+        spanTemp.innerHTML = `${ultimoAlertaTemp}°C`;
+        spanMomento.innerHTML = ultimoAlertaMomento;
+
+        if (ultimoAlertaTemp < 18) {
+            spanTemp.style.color = '#001AFF';
+        }
+
+    }
+
+    function inserirKpiMaiorTemp2h(resposta, idConjunto) {
+        const maiorTemp = resposta[0].temp;
+        const momentoMaiorTemp = resposta[0].momento;
+        const spanMaiorTemp = document.getElementById(`maiorTempGrafico${idConjunto}`);
+        const spanMomentoMaiorTemp = document.getElementById(`maiorTempMomentoGrafico${idConjunto}`);
+
+        spanMaiorTemp.innerHTML = `${maiorTemp}°C`;
+        spanMomentoMaiorTemp.innerHTML = momentoMaiorTemp;
+
+        if (maiorTemp > 25) {
+            spanMaiorTemp.style.color = '#D30C0C';
+        }
+        else if (maiorTemp < 18) {
+            spanMaiorTemp.style.color = '#001AFF';
+
+        }
+        else if (maiorTemp == null) {
+            spanMaiorTemp.style.color = '#000';
+        }
+    }
+
+    function inserirKpiMaiorUmidade2h(resposta, idConjunto) {
+        const maiorUmid = resposta[0].umid;
+        const momentoMaiorUmid = resposta[0].momento;
+        const spanMaiorUmid = document.getElementById(`maiorUmidGrafico${idConjunto}`);
+        const spanMomentoMaiorUmid = document.getElementById(`maiorUmidMomentoGrafico${idConjunto}`);
+
+        spanMaiorUmid.innerHTML = `${maiorUmid}°C`;
+        spanMomentoMaiorUmid.innerHTML = momentoMaiorUmid;
+
+        if (maiorUmid < 45 || maiorUmid > 55) {
+            spanMaiorUmid.style.color = '#D30C0C';
+        }
+        else if (maiorTemp == null) {
+            spanMaiorUmid.style.color = '#000';
+
+        }
+    }
+
+    function obterDadosGraficoParaAlerta(idConjunto) {
+
+        if (proximaAtualizacao != undefined) {
+            clearTimeout(proximaAtualizacao);
+        }
+
+        fetch(`/alertas/ultimaLeitura/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (resposta) {
+                    console.log(`Dados recebidos: ${JSON.stringify(resposta)}`);
+                    alertaMudarCorBotoes(resposta, idConjunto);
+
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+    }
+
+    function loopDadosParaGraficoAlerta() {
+        departamentos.forEach(item => {
+            obterDadosGraficoParaAlerta(item.idConjunto);
+        });
+    }
+
+
+    function alertaMudarCorBotoes(resposta, ultimoDepto) {
+        const deptoAtual = resposta[0].depto;
+
+        const btnDepartamento = document.getElementById(`btnDepto${resposta[0].depto}`);
+        const btnConjunto = document.getElementById(`grafConj${resposta[0].conjunto}`);
+        const tempRecente = resposta[0].temp;
+        const umidRecente = resposta[0].umid;
+
+
+        if (tempRecente > 25 || (umidRecente < 45 || umidRecente > 55)) {
+            btnConjunto.style.backgroundColor = 'red';
+            btnConjunto.style.color = '#ffffff';
+            btnDepartamento.style.backgroundColor = 'rgb(255, 187, 0)';
+            btnDepartamento.classList.add('aviso_piscando');
+            btnConjunto.classList.add('aviso_piscando');
+        }
+        else if (tempRecente < 18) {
+            btnConjunto.style.backgroundColor = '#001AFF';
+            btnConjunto.style.color = '#ffffff';
+            btnDepartamento.style.backgroundColor = 'rgb(255, 187, 0)';
+            btnDepartamento.classList.add('aviso_piscando');
+            btnConjunto.classList.add('aviso_piscando');
+        }
+        else {
+            btnDepartamento.classList.remove('aviso_piscando');
+            btnConjunto.classList.remove('aviso_piscando');
+            btnConjunto.style.backgroundColor = '#77b9e6';
+        }
+    }
+
+
+    function plotarGrafico(resposta, idConjunto) {
+
+        console.log('iniciando plotagem do gráfico...');
+
+        // Criando estrutura para plotar gráfico - labels
+        let labels = [];
+
+        // Criando estrutura para plotar gráfico - dados
+        let dados = {
+            labels: labels,
+            datasets: [{
+                label: 'Umidade',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(75, 192, 192)',
+                tension: 0.1
+            },
+            {
+                label: 'Temperatura',
+                data: [],
+                fill: false,
+                borderColor: 'rgb(199, 52, 52)',
+                tension: 0.1
+            }]
+        };
+
+        console.log('----------------------------------------------')
+        console.log('Estes dados foram recebidos pela funcao "obterDadosGrafico" e passados para "plotarGrafico":')
+        console.log(resposta)
+
+        // Inserindo valores recebidos em estrutura para plotar o gráfico
+        for (i = 0; i < resposta.length; i++) {
+            var registro = resposta[i];
+            labels.push(registro.horarioCaptura);
+            dados.datasets[0].data.push(registro.umid);
+            dados.datasets[1].data.push(registro.temp);
+        }
+
+        console.log('----------------------------------------------')
+        console.log('O gráfico será plotado com os respectivos valores:')
+        console.log('Labels:')
+        console.log(labels)
+        console.log('Dados:')
+        console.log(dados.datasets)
+        console.log('----------------------------------------------')
+
+        // Criando estrutura para plotar gráfico - config
+        const config = {
+            type: 'line',
+            data: dados,
+        };
+
+        // Adicionando gráfico criado em div na tela
+        let myChart = new Chart(
+            document.getElementById(`myChartCanvas${idConjunto}`),
+            config
+        );
+
+        setTimeout(() => atualizarGrafico(idConjunto, dados, myChart), 2000);
+    }
+
+
+
+    function atualizarGrafico(idConjunto, dados, myChart) {
+
+        fetch(`/medidas/tempo-real/${idConjunto}`, { cache: 'no-store' }).then(function (response) {
+            if (response.ok) {
+                response.json().then(function (novoRegistro) {
+
+                    // obterdados(idConjunto);
+                    // alertar(novoRegistro, idConjunto);
+                    console.log(`Dados recebidos: ${JSON.stringify(novoRegistro)}`);
+                    console.log(`Dados atuais do gráfico:`);
+                    console.log(dados);
+
+                    // let avisoCaptura = document.getElementById(`avisoCaptura${idConjunto}`)
+                    // avisoCaptura.innerHTML = ""
+
+
+                    if (novoRegistro[0].horarioCaptura == dados.labels[dados.labels.length - 1]) {
+                        // console.log("---------------------------------------------------------------")
+                        console.log("Como não há dados novos para captura, o gráfico não atualizará.")
+                        // avisoCaptura.innerHTML = "<i class='fa-solid fa-triangle-exclamation'></i> Foi trazido o dado mais atual capturado pelo sensor. <br> Como não há dados novos a exibir, o gráfico não atualizará."
+                        console.log("Horário do novo dado capturado:")
+                        console.log(novoRegistro[0].momento_grafico)
+                        console.log("Horário do último dado capturado:")
+                        console.log(dados.labels[dados.labels.length - 1])
+                        console.log("---------------------------------------------------------------")
+                    } else {
+                        // tirando e colocando valores no gráfico
+                        dados.labels.shift(); // apagar o primeiro
+                        dados.labels.push(novoRegistro[0].horarioCaptura); // incluir um novo momento
+
+                        dados.datasets[0].data.shift();  // apagar o primeiro de umidade
+                        dados.datasets[0].data.push(novoRegistro[0].umid); // incluir uma nova medida de umidade
+
+                        dados.datasets[1].data.shift();  // apagar o primeiro de temperatura
+                        dados.datasets[1].data.push(novoRegistro[0].temp); // incluir uma nova medida de temperatura
+
+                        myChart.update();
+                    }
+                    obterDadosKpiGeral(idEmpresa)
+                    loopDadosParaGraficoAlerta();
+
+                    // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                    proximaAtualizacao = setTimeout(() => atualizarGrafico(idConjunto, dados, myChart), 2000);
+                });
+            } else {
+                console.error('Nenhum dado encontrado ou erro na API');
+                // Altere aqui o valor em ms se quiser que o gráfico atualize mais rápido ou mais devagar
+                proximaAtualizacao = setTimeout(() => atualizarGrafico(idConjunto, dados, myChart), 2000);
+            }
+        })
+            .catch(function (error) {
+                console.error(`Erro na obtenção dos dados p/ gráfico: ${error.message}`);
+            });
+
+    }
+
+</script>
