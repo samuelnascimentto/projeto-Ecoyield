@@ -3,7 +3,7 @@
 <p>Projeto feito para um trabalho de faculdade, onde tivemos que desenvolver para a empresa Ecoyield, demonstramos nossas habilidades em HTML, CSS, JavaScript, Json, Mysql e Node.js.
 </p><br><br>
 
-![ecoyield](https://github.com/user-attachments/assets/ec030264-5af7-447d-9c5a-6e2c928ecf4a)
+![Untitled design (3)](https://github.com/user-attachments/assets/b7cf6c48-1495-465c-8f2e-a881bfecef7b)
 
 
 <br><br><h2>Tecnologias Utilizadas</h2>
