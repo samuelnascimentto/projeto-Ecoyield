@@ -25,7 +25,7 @@
 
 <h2>Como Usar</h2>
 <ol>
-<li>Clone o repositório: <code>git clone: https://github.com/samuelnascimentto/Projeto-Ecoyield.git;</code></li>
+<li>Clone o repositório: <code>git clone: https://github.com/samuelnascimentto/projeto-Ecoyield.git;</code></li>
 <li>Navegue até o diretório do projeto: <code>cd Projeto-Ecoyield;</code></li>
 <li>Abra o arquivo <code>index.html</code> em um navegador web.</li>
 </ol>
